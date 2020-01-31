@@ -40,6 +40,13 @@ def tree(json_data):
 
 
 
-def categoriesGetEndpointView(request):
-    #if request.method == 'GET':
-    print('What you get')
+def categoriesGetEndpointView(request, category_id):
+    answer = ''
+    if request.method == 'GET':
+        answer = Category.objects.get(id=category_id)
+        if answer:
+            print(answer)
+    return HttpResponse(answer)
+
+def backfire():
+    ...
