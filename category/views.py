@@ -24,8 +24,12 @@ def tree(json_data):
     global number
     if type(json_data) == dict:
         while json_data.get('name'):
-            print(f"{number}: {json_data.pop('name')}")
-            number += 1
+            name = json_data.pop('name')
+            print(f"{number}: {name}")
+            if not Category.objects.filter(name=name):
+                number += 1
+                obj = Category(name=name)
+                obj.save()
         if json_data.get('children'):
             transfer = json_data.pop('children')
             tree(transfer)
