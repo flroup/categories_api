@@ -46,7 +46,35 @@ def categoriesGetEndpointView(request, category_id):
         answer = Category.objects.get(id=category_id)
         if answer:
             print(answer)
+            print('Test !!!!!!!!')
+            print(backfire(category_id, answer.name))
     return HttpResponse(answer)
 
-def backfire():
-    ...
+def backfire(category_id, etalon):
+    if category_id < 1:
+        return
+    parents, children,siblings = [],[],[]
+    last = Category.objects.last().id
+    #looking for siblings and parents
+    for relative_id in range(category_id - 1, 0, -1):
+        relative = Category.objects.get(id=relative_id).name
+        print(f"etalon == {etalon}")
+        print(f"relative == {relative}")
+        if relative.count('.') == etalon.count('.'):
+            siblings.append(relative)
+        elif relative.count('.') == etalon.count('.') - 1:
+            parents.append(relative)
+        #else:
+        #    break
+    #looking for siblings and children 
+    for relative_id in range(category_id + 1, last + 1):
+        relative = Category.objects.get(id=relative_id).name
+        print(f"etalon == {etalon}")
+        print(f"relative == {relative}")
+        if relative.count('.') == etalon.count('.'):
+            siblings.append(relative)
+        elif relative.count('.') == etalon.count('.') + 1:
+            children.append(relative)
+        #else:
+        #    break
+    return {'parents':parents, 'siblings':siblings, 'children':children}
