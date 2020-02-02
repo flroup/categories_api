@@ -42,7 +42,7 @@ def tree(json_data):
 
 
 def categoriesGetEndpointView(request, category_id):
-    answer = ''
+    answer = result = ''
     if request.method == 'GET':
         answer = Category.objects.get(id=category_id)
         if answer:
