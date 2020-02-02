@@ -1,18 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
 import json
 
-from category.models import Category
+from .models import Category
 
 # Create your views here.
 
 #Process json from POST. csrf protection is disabled
 @csrf_exempt
 def categoriesEndpointView(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         json_data = json.loads(request.body)
+        # json_data = json.loads(json.dumps(request.body))
         print(json_data)
         tree(json_data)
     return HttpResponse('Got it!')
@@ -22,17 +23,23 @@ def tree(json_data):
     if not json_data:
         return
 
+    # print('There is json data...')
+
     if type(json_data) == dict:
-        while json_data.get('name'):
-            name,number = json_data.pop('name').split()
+        while json_data.get("name"):
+            name,number = json_data.pop("name").split()
             print(f"{number}: {name}")
-            result = Category.objects.get(number=number)
+            try:
+                result = Category.objects.get(number=number)
+            except Category.DoesNotExist:
+                result = None
+            # result = get_object_or_404(Category,number=number)
             if not result or not result.name == name:
                 #number += 1
                 obj = Category(name=name, number=number)
                 obj.save()
-        if json_data.get('children'):
-            transfer = json_data.pop('children')
+        if json_data.get("children"):
+            transfer = json_data.pop("children")
             tree(transfer)
     elif type(json_data) == list:
         for item in json_data:
@@ -44,14 +51,17 @@ def tree(json_data):
 def categoriesGetEndpointView(request, category_id):
     answer = result = ''
     if request.method == 'GET':
-        answer = Category.objects.get(id=category_id)
+        try:
+            answer = Category.objects.get(id=category_id)
+        except Category.DoesNotExist:
+            answer = None
         if answer:
             print(answer)
             # print('Test !!!!!!!!')
             result = backfire(category_id, answer)
             print(result)
             # print(result['parents'][0])
-    return HttpResponse(json.dumps(result))
+    return HttpResponse(json.dumps(result), content_type='application/json')
 
 #Calls from categoriesGetEndpointView for process an answer for GET
 def backfire(category_id, etalon):
