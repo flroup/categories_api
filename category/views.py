@@ -7,9 +7,8 @@ import json
 from category.models import Category
 
 # Create your views here.
-number = 1
 
-
+#Process json from POST. csrf protection is disabled
 @csrf_exempt
 def categoriesEndpointView(request):
     if request.method == 'POST':
@@ -18,10 +17,11 @@ def categoriesEndpointView(request):
         tree(json_data)
     return HttpResponse('Got it!')
 
+#Recursion processing a json for categoriesEndpointView
 def tree(json_data):
     if not json_data:
         return
-    #global number
+
     if type(json_data) == dict:
         while json_data.get('name'):
             name,number = json_data.pop('name').split()
@@ -40,7 +40,7 @@ def tree(json_data):
 
 
 
-
+#Answer for a request by GET on /categories/<category_id>/
 def categoriesGetEndpointView(request, category_id):
     answer = result = ''
     if request.method == 'GET':
@@ -53,7 +53,7 @@ def categoriesGetEndpointView(request, category_id):
             # print(result['parents'][0])
     return HttpResponse(json.dumps(result))
 
-
+#Calls from categoriesGetEndpointView for process an answer for GET
 def backfire(category_id, etalon):
     if category_id < 1:
         return
@@ -73,7 +73,8 @@ def backfire(category_id, etalon):
         #     parents.append(relative)
         if rdot == edot and relative.number != etalon.number:
             siblings.append({'id':relative.id, 'name': etalon.name + " " + relative.number})
-        elif rdot == edot + 1 and etalon.number == relative.number[:len(etalon.number)]:
+#        elif rdot == edot + 1 and etalon.number == relative.number[:len(etalon.number)]:
+        elif rdot == edot + 1 and etalon.number == relative.number[:relative.number.rfind('.')]:
             children.append({'id':relative.id, 'name': etalon.name + " " + relative.number})
     return {'id': category_id, 'name': etalon.name + ' ' + etalon.number,'parents': parents, 'children':children, 'siblings':siblings}
 
