@@ -34,6 +34,7 @@ class CategoryTest(TestCase):
                           [{"name":"Category 1.2.2.1"},
                            {"name":"Category 1.2.2.2"}
                            ]}]}]}
+
         response = self.client.generic("POST", "/categories/",
                                        json.dumps(data_input))
 
@@ -52,7 +53,9 @@ class CategoryTest(TestCase):
                                  {"id":7,"name":"Category 1.1.2"}],
                         "siblings":
                                 [{"id":11,"name":"Category 1.2"}]}
+
         response = self.client.get("/categories/2/")
+
         self.assertEqual(response.status_code,200)
         self.assertEqual(json.loads(response.content), data_output1)
 
@@ -67,7 +70,9 @@ class CategoryTest(TestCase):
                                [{"id":9,"name":"Category 1.1.2.2"},
                                 {"id":10,"name":"Category 1.1.2.3"}
                                 ]}
+
         response = self.client.get('/categories/8/')
+
         self.assertEqual(response.status_code,200)
         self.assertEqual(json.loads(response.content), data_output2)
 
@@ -75,6 +80,5 @@ class CategoryTest(TestCase):
         data_input = {"name":"Category1","children":[]}
         response = self.client.generic("POST", "/categories/",
                                        json.dumps(data_input))
-        print(response.status_code, ' - check')
-        # print(response.content)
+
         self.assertEqual(response.content, b"Wrong format input data")
